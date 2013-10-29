@@ -21,6 +21,10 @@ public class MapComponent extends Component
 	ArrayList < ArrayList <Integer> > buildingList = null;
 	ArrayList < ArrayList <Integer> > pointRegionBuildingList = null;
 
+	ArrayList <Integer> pointRegionStudentCoordinatesList 	= 	null;
+	ArrayList <Integer> pointRegionAnnouncementCoordinatesList 	= 	null;
+
+
 	public int  imageHeight, imageWidth;
 
 	public boolean drawWholeRegion = false;
@@ -29,6 +33,24 @@ public class MapComponent extends Component
 
 	int pointX = -1, pointY = -1;
 
+
+	public ArrayList<Integer> getPointRegionAnnouncementCoordinatesList() {
+		return pointRegionAnnouncementCoordinatesList;
+	}
+
+	public void setPointRegionAnnouncementCoordinatesList(
+			ArrayList<Integer> pointRegionAnnouncementCoordinatesList) {
+		this.pointRegionAnnouncementCoordinatesList = pointRegionAnnouncementCoordinatesList;
+	}
+
+	public ArrayList<Integer> getPointRegionStudentCoordinatesList() {
+		return pointRegionStudentCoordinatesList;
+	}
+
+	public void setPointRegionStudentCoordinatesList(
+			ArrayList<Integer> pointRegionStudentCoordinatesList) {
+		this.pointRegionStudentCoordinatesList = pointRegionStudentCoordinatesList;
+	}
 
 	public ArrayList<ArrayList<Integer>> getPointRegionBuildingList() {
 		return pointRegionBuildingList;
@@ -158,6 +180,7 @@ public class MapComponent extends Component
 	// this method is just to draw the a square and a circle of a point clicked on the map.
 	public void drawPointRegion(Graphics map){
 
+		//draw buildings
 		if(pointRegionBuildingList!=null && pointRegionBuildingList.size()>0 ){
 			for (int j = 0; j < pointRegionBuildingList.size(); j++) {
 				// in this list , the first building is the nearest one.
@@ -178,6 +201,38 @@ public class MapComponent extends Component
 						buildingCoordinates.get(0), buildingCoordinates.get(1) );
 			}
 		}
+
+		//to draw students
+		if(pointRegionStudentCoordinatesList!=null & pointRegionStudentCoordinatesList.size()>0){
+
+			map.setColor(Color.GREEN);
+
+			for (int i = 0; i < pointRegionStudentCoordinatesList.size(); i+=2) {
+				if( i == 0){
+					map.setColor(Color.YELLOW);
+				}else{
+					map.setColor(Color.GREEN);
+				}
+				map.fillRect(pointRegionStudentCoordinatesList.get(i)-5, pointRegionStudentCoordinatesList.get(i+1)-5, 10, 10);
+			}
+		}
+		
+		if(pointRegionAnnouncementCoordinatesList!=null && pointRegionAnnouncementCoordinatesList.size()>0){
+
+			for (int i = 0; i < pointRegionAnnouncementCoordinatesList.size(); i+=3) {
+				if( i == 0){
+					map.setColor(Color.YELLOW);
+				}else{
+					map.setColor(Color.GREEN);
+				}
+				//need to check below code again
+				map.fillRect(pointRegionAnnouncementCoordinatesList.get(i)-7 , pointRegionAnnouncementCoordinatesList.get(i+1)-7, 15, 15);
+				map.drawOval(pointRegionAnnouncementCoordinatesList.get(i)-pointRegionAnnouncementCoordinatesList.get(i+2),
+						pointRegionAnnouncementCoordinatesList.get(i+1)-pointRegionAnnouncementCoordinatesList.get(i+2),
+						pointRegionAnnouncementCoordinatesList.get(i+2)*2, pointRegionAnnouncementCoordinatesList.get(i+2)*2 );
+			}
+		}
+
 	}
 
 	// this method is just to draw the a square and a circle of a point clicked on the map.
@@ -189,14 +244,12 @@ public class MapComponent extends Component
 	public void drawWholeRegion(Graphics map){
 		if(asCoordinates!=null && asCoordinates.size()>0){
 			map.setColor(Color.RED);
-			if(asCoordinates!=null && asCoordinates.size()>0 ){
 
-				for (int i = 0; i < asCoordinates.size(); i+=3) {
-					//need to check below code again
-					map.fillRect(asCoordinates.get(i)-7 , asCoordinates.get(i+1)-7, 15, 15);
-					map.drawOval(asCoordinates.get(i)-asCoordinates.get(i+2)/2, asCoordinates.get(i+1)-asCoordinates.get(i+2)/2,
-							asCoordinates.get(i+2), asCoordinates.get(i+2) );
-				}
+			for (int i = 0; i < asCoordinates.size(); i+=3) {
+				//need to check below code again
+				map.fillRect(asCoordinates.get(i)-7 , asCoordinates.get(i+1)-7, 15, 15);
+				map.drawOval(asCoordinates.get(i)-asCoordinates.get(i+2), asCoordinates.get(i+1)-asCoordinates.get(i+2),
+						asCoordinates.get(i+2)*2, asCoordinates.get(i+2)*2 );
 			}
 		}
 		if(buildingList!=null && buildingList.size()>0 ){

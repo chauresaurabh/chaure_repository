@@ -30,6 +30,8 @@ public class QueryButtonListener implements ActionListener{
 	public void drawPointRegion(){
 
 		ArrayList < ArrayList <Integer> > buildingList = new ArrayList< ArrayList <Integer> >();
+		ArrayList <Integer> studentCoordinates = new ArrayList< Integer >();
+		ArrayList <Integer> announcementCoordinates = new ArrayList< Integer >();
 
 		if(mapComponent.getPointX()!=-1 && mapComponent.getPointY()!=-1)
 		{
@@ -39,7 +41,7 @@ public class QueryButtonListener implements ActionListener{
 
 					Connection conn  =  DBUtil.getConnection();
 					Statement stmt 	 = 	conn.createStatement();
-					
+
 					String sql 	 =	"select b.building_id , b.shape.sdo_ordinates from sbc_buildings b " +
 							"	WHERE SDO_NN(b.shape, SDO_GEOMETRY(2001, NULL," +
 							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
@@ -62,19 +64,18 @@ public class QueryButtonListener implements ActionListener{
 						}
 						buildingList.add(list);
 					}
-					System.out.println("Nearest Building : " + building);
 					// for all buildings , except the one picked in previous query
 					// need to check if nothing is returned in 1st query
-					  sql 	 =	"  select b.shape.sdo_ordinates from sbc_buildings b WHERE" +
-							  " building_id !=? AND "+
+					sql 	 =	"  select b.shape.sdo_ordinates from sbc_buildings b WHERE" +
+							" building_id !=? AND "+
 							" SDO_WITHIN_DISTANCE(b.shape," +
 							"		 SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null), null, null), " +
 							" 'distance = 50') = 'TRUE' " ;
 
-					  PreparedStatement ps 	 = 	conn.prepareStatement(sql);
-					  ps.setString(1, building);
-					  res 		= 	 (OracleResultSet)ps.executeQuery();
+					PreparedStatement ps 	 = 	conn.prepareStatement(sql);
+					ps.setString(1, building);
+					res 		= 	 (OracleResultSet)ps.executeQuery();
 					while ( res.next() ) 
 					{
 						oracle.sql.ARRAY arr	= 	(ARRAY) res.getObject(1);
@@ -93,6 +94,131 @@ public class QueryButtonListener implements ActionListener{
 				mapComponent.setPointRegionBuildingList(buildingList);
 			}
 
+			// to show students in that area.
+			if( imageDrawingApplet.studentCheckBox.isSelected() ){
+				try 
+				{
+					Connection conn  =  DBUtil.getConnection();
+					Statement stmt 	 = 	conn.createStatement();
+					String studentId="";
+					String sql 	 =	"select b.studentid , b.shape.sdo_point from sbc_students b " +
+							"	WHERE SDO_NN(b.shape, SDO_GEOMETRY(2001, NULL," +
+							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
+							mapComponent.getPointY()+" ,null) , null, null)," +
+							"   'sdo_num_res=1',1) = 'TRUE'" +
+							" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
+							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
+							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;
+					OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
+
+					while ( res.next() ) 
+					{
+						studentId = res.getString(1);
+						STRUCT struct 			= 	(STRUCT) res.getObject(2);
+						Object[] data 			= 	struct.getAttributes();
+
+						int x 				= 	((Number) data[0]).intValue();
+						int y 				= 	((Number) data[1]).intValue();
+						studentCoordinates.add(x);
+						studentCoordinates.add(y);
+					}
+					// for all buildings , except the one picked in previous query
+					// need to check if nothing is returned in 1st query
+					sql 	 =	"  select b.shape.sdo_point from sbc_students b WHERE" +
+							" studentid !=? AND "+
+							" SDO_WITHIN_DISTANCE(b.shape," +
+							"		 SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
+							mapComponent.getPointY()+" ,null), null, null), " +
+							" 'distance = 50') = 'TRUE' " ;
+
+					PreparedStatement ps 	 = 	conn.prepareStatement(sql);
+					ps.setString(1, studentId);
+					res 		= 	 (OracleResultSet)ps.executeQuery();
+					while ( res.next() ) 
+					{
+						studentId = res.getString(1);
+						STRUCT struct 			= 	(STRUCT) res.getObject(1);
+						Object[] data 			= 	struct.getAttributes();
+
+						int x 				= 	((Number) data[0]).intValue();
+						int y 				= 	((Number) data[1]).intValue();
+						studentCoordinates.add(x);
+						studentCoordinates.add(y);
+					}		
+				}catch(Exception e){
+					e.printStackTrace();
+				}	
+				mapComponent.setDrawPointRegion(true);
+				mapComponent.setPointRegionStudentCoordinatesList(studentCoordinates);
+				
+			}
+			if(imageDrawingApplet.asCheckBox.isSelected()){
+				
+				try 
+				{
+					Connection conn  =  DBUtil.getConnection();
+					Statement stmt 	 = 	conn.createStatement();
+					String announcementName="";
+					String sql 	 =	"select b.announcement_name , b.shape.sdo_point , b.announcement_radius from sbc_announcement b " +
+							"	WHERE SDO_NN(b.shape, SDO_GEOMETRY(2001, NULL," +
+							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
+							mapComponent.getPointY()+" ,null) , null, null)," +
+							"   'sdo_num_res=1',1) = 'TRUE'" +
+							" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
+							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
+							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;
+					OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
+
+					while ( res.next() ) 
+					{
+						announcementName = res.getString(1);
+						
+						STRUCT struct 			= 	(STRUCT) res.getObject(2);
+						int radius = res.getInt(3);
+						Object[] data 			= 	struct.getAttributes();
+
+						int x 				= 	((Number) data[0]).intValue();
+						int y 				= 	((Number) data[1]).intValue();
+						announcementCoordinates.add(x);
+						announcementCoordinates.add(y);
+						announcementCoordinates.add(radius);
+						
+					}
+					// for all buildings , except the one picked in previous query
+					// need to check if nothing is returned in 1st query
+					sql 	 =	"  select b.shape.sdo_point, b.announcement_radius from sbc_announcement b WHERE" +
+							" announcement_name !=? AND "+
+							" SDO_WITHIN_DISTANCE(b.shape," +
+							"		 SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
+							mapComponent.getPointY()+" ,null), null, null), " +
+							" 'distance = 50') = 'TRUE' " ;
+
+					PreparedStatement ps 	 = 	conn.prepareStatement(sql);
+					ps.setString(1, announcementName);
+					res 		= 	 (OracleResultSet)ps.executeQuery();
+					while ( res.next() ) 
+					{
+						announcementName = res.getString(1);
+						int radius = res.getInt(2);
+						STRUCT struct 			= 	(STRUCT) res.getObject(1);
+						Object[] data 			= 	struct.getAttributes();
+
+						int x 				= 	((Number) data[0]).intValue();
+						int y 				= 	((Number) data[1]).intValue();
+						announcementCoordinates.add(x);
+						announcementCoordinates.add(y);
+						announcementCoordinates.add(radius);
+
+					}		
+				}catch(Exception e){
+					e.printStackTrace();
+				}	
+				mapComponent.setDrawPointRegion(true);
+				mapComponent.setPointRegionAnnouncementCoordinatesList(announcementCoordinates);
+				
+			}
+			
+			
 		}
 		if(mapComponent.isDrawPointRegion() == true )
 			mapComponent.repaint();
