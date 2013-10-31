@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>Homework # 4</title>
+
+<style type="text/css">
+ 
+form {
+ margin-left: 500px;
+ margin-top: 250px; 
+  
+}
+
+#urllabel{
+ margin-left: 60px; 
+}
+
+#submitbutton{
+ margin-left: 100px; 
+
+}
+</style>
+
+
+<script type="text/javascript">
+ 
+function viewXML(form){
+	var url = form.URL.value;
+ 
+	if(url=="" || url.length==0){
+		alert('Please enter a URL for the Book XML File');
+		return;
+	}
+	xmlDoc = loadXML(url);
+ 
+if (xmlDoc.documentElement.nodeName == "parsererror")
+{
+  alert('Error in XML File');
+  return;
+
+}
+ 
+   var authorFlag = false;
+   var titleFlag = false;
+   var genreFlag = false;
+   var priceFlag = false;
+   var publishDateFlag = false;
+   var descriptionFlag = false;
+   var imageFlag = false;
+
+var x = xmlDoc.getElementsByTagName("book");
+        
+var str="";
+var dataFound = false;
+if(x.length>0){
+	
+		try{
+		str = str + "<table border='1'>";
+
+				str = str + "<tr>";
+
+					str = str + "<th>author</th>";
+					str = str + "<th>title</th>";
+					str = str + "<th>genre</th>";
+					str = str + "<th>price</th>";
+					str = str + "<th>publish_date</th>";
+					str = str + "<th>description</th>";
+					str = str + "<th>image</th>";
+				str = str + "</tr>";
+
+						for (i=0;i<x.length;i++)
+						  { 
+							    titleFlag = false;
+							    genreFlag = false;
+							    priceFlag = false;
+							    publishDateFlag = false;
+							    descriptionFlag = false;
+							    imageFlag = false;
+
+ 							   if ( ifTagExists(x[i], "author") ) {
+									authorFlag = true;
+							   }
+ 							   if ( ifTagExists(x[i], "title") ) {
+									titleFlag = true;
+							   }
+  							   if ( ifTagExists(x[i], "genre") ) {
+									genreFlag = true;
+							   }
+  							   if ( ifTagExists(x[i], "price") ) {
+ 									priceFlag = true;
+							   }
+	  							if ( ifTagExists(x[i], "publish_date") ) {
+ 									publishDateFlag = true;
+							   }
+	  							if ( ifTagExists(x[i], "description") ) {
+ 									descriptionFlag = true;
+							   }
+	  							if ( ifTagExists(x[i], "image") ) {
+ 									imageFlag = true;
+							   }
+						if(  titleFlag == false &&   genreFlag == false &&  priceFlag == false &&
+					         publishDateFlag == false &&   descriptionFlag == false && imageFlag == false ){
+ 									continue;
+						 } else {
+							 if( ifTagValueEmpty(x[i],"author") && ifTagValueEmpty(x[i],"title")
+								&& ifTagValueEmpty(x[i],"genre") && ifTagValueEmpty(x[i],"price")
+								&& ifTagValueEmpty(x[i],"publish_date") && ifTagValueEmpty(x[i],"description") 
+								&& ifTagValueEmpty(x[i],"image") ){
+									continue;
+							 }
+								dataFound = true;
+						 }
+							 
+						  str = str + "<tr>";
+							 str = str + "<td>";
+								if(authorFlag)
+								 str = str + x[i].getElementsByTagName("author")[0].childNodes[0].nodeValue;
+							 str = str + "</td>";
+							
+							str = str + "<td>";
+								if(titleFlag)
+								 str = str + x[i].getElementsByTagName("title")[0].childNodes[0].nodeValue;
+							 str = str + "</td>";
+							
+							str = str + "<td>";
+								if(genreFlag)
+								 str = str + x[i].getElementsByTagName("genre")[0].childNodes[0].nodeValue;
+							 str = str + "</td>";
+
+							 str = str + "<td>";
+								if(priceFlag)
+								 str = str + x[i].getElementsByTagName("price")[0].childNodes[0].nodeValue;
+							 str = str + "</td>";
+
+							 str = str + "<td>";
+								if(publishDateFlag)
+								 str = str + x[i].getElementsByTagName("publish_date")[0].childNodes[0].nodeValue;
+							 str = str + "</td>";
+
+							 str = str + "<td>";
+								if(descriptionFlag)
+								 str = str + x[i].getElementsByTagName("description")[0].childNodes[0].nodeValue;
+							 str = str + "</td>";
+
+							 str = str + "<td>";
+								if(imageFlag)
+								 str = str + "<img width=100 height=100 src='"+ x[i].getElementsByTagName('image')[0].childNodes[0].nodeValue+"'>";
+							 str = str + "</td>";
+							 
+						 str = str + "</tr>";
+						  }
+		str = str + "</table>";
+}catch(err){
+	dataFound = false;
+	alert('XML File containts Errors, Please check the XML File');
+	return;
+}
+		if(dataFound){
+			mywin = window.open("","_blank","scrollbars=1");
+			mywin.document.write(str);
+		}else{
+			alert('Books found, but all the information is missing');
+ 		}
+		}else{
+			alert('No data for Books found in XML File');
+		}
+}
+
+function ifTagValueEmpty(x, tag){
+	if(	(x.getElementsByTagName(tag)[0].childNodes[0]==null) || (x.getElementsByTagName(tag)[0].childNodes[0].nodeValue.trim() == "" ||			 x.getElementsByTagName(tag)[0].childNodes[0].nodeValue.trim().length ==0 ))
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+function ifTagExists( x,  tag){
+ 	if ( ( x.getElementsByTagName(tag) ).length > 0 && (x.getElementsByTagName(tag)[0].childNodes[0]!=null))
+	{
+		return true;
+	} else {
+		return false;
+	}
+}
+function loadXML(url){ 
+	if(window.XMLHttpRequest){
+		xmlhttprequest = new XMLHttpRequest();
+	}
+ 
+	xmlhttprequest.open("GET", url, false);
+		try{
+
+	xmlhttprequest.send();
+	if( xmlhttprequest.status == 404 ) {
+			alert(" File '" + url + "' does not Exist !");
+			return;
+	}
+	 
+	xmlDoc = xmlhttprequest.responseXML;
+	
+	}catch(err){
+			alert(" File '" + url + "' does not Exist!");
+			return;
+	}
+ 	return xmlDoc;
+}
+
+</script>
+</head>
+<body>
+
+<div id="formdiv" width=800 height=800>
+<form name="hw4form" method="GET" id="hw4formid" >
+
+
+	<p id="urllabel">Enter URL for Book XML File</p>
+	<input id="urlbox" type="text" name="URL" size=50 maxlength="255"> <br/><br/>
+	<input id="submitbutton" type="submit" value="Submit Query" onClick="viewXML(this.form)">
+ 
+</form>
+</div>
+
+<noscript>
+
+</body>
+</html>
