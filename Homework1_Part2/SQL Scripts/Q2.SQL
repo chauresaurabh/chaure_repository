@@ -1,0 +1,1 @@
+select nickname from user_table where location like '%Los Angeles%' 
