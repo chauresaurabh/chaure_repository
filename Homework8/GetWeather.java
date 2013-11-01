@@ -26,32 +26,28 @@ public class GetWeather extends HttpServlet {
 		String[] paramValues2 = request.getParameterValues("locationType");
 		String[] paramValues3 = request.getParameterValues("temperatureType");
 
- 		PrintWriter out = response.getWriter();
- 		String str="";
- 		//out.println("http://saurabh-chaure.elasticbeanstalk.com/?locationType="+paramValues[0]+"&locationText="+paramValues2[0]+"&temperature=f");
+		PrintWriter out = response.getWriter();
+		String str="";
 		try{
 			str = getWeatherInfo(paramValues[0],paramValues2[0], paramValues3[0]);
 		}catch(Exception e){
-			try {
-  				str+=  "<weather>ERROR : "+e.getMessage()+"</weather>";
-			} catch (Exception e1) {
-				// TODO Auto-generated catch block
-				String aUrl = "http://saurabh-chaure.elasticbeanstalk.com/?locationType="+paramValues[0]+"&locationText="+ paramValues2[0]+"&temperatureType="+paramValues3[0];
- 				str+=  "<weather>"+URLEncoder.encode(aUrl, "UTF-8")+"</weather>";
-			}
+			str =  "{" +
+					" weather: {" +
+									" error : 'Error occured while getting data, Cause : "+ e.getMessage()+"'" +
+								"}" +
+					"}";
 		}
 		out.println (str);
 	}
 
-	public String getWeatherInfo(String zipcode, String locationType, String temperatureType) throws IOException{
- 		
+	public String getWeatherInfo(String zipcode, String locationType, String temperatureType) throws Exception{
+
 		zipcode = URLEncoder.encode(zipcode, "UTF-8");
- 		
- 		String aUrl = "http://saurabh-chaure.elasticbeanstalk.com/?locationType="+locationType+"&locationText="+zipcode+"&temperatureType="+temperatureType;
- 		URL url = new URL( aUrl );
- 		 
-		String value="<noparse>Nothing to display</noparse>";
-		URLConnection urlConnection	= url.openConnection();
+
+		String aUrl = "http://saurabh-chaure.elasticbeanstalk.com/?locationType="+locationType+"&locationText="+zipcode+"&temperatureType="+temperatureType;
+		URL url = new URL( aUrl );
+		String value="";
+ 		URLConnection urlConnection	= url.openConnection();
 		urlConnection.setAllowUserInteraction(false);
 		InputStream stream = url.openStream();	
 		StringBuffer str = new StringBuffer();
@@ -62,14 +58,11 @@ public class GetWeather extends HttpServlet {
 			str.append(line);
 		}
 		JSONObject jsonObj;
-		try {
-			jsonObj = XML.toJSONObject(str.toString());
-			value="";
-			value = value+jsonObj;
-		} catch (Exception e) {
- 			value = e.getMessage();
-		}  
-		return value;
+		jsonObj = XML.toJSONObject(str.toString());
+		value="";
+		value = value+jsonObj;
+	 
+		 return value;
 	}
-  
+
 }

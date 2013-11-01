@@ -36,6 +36,10 @@
     body {
 	background-image: url('sky.jpg');
 	}
+	 p {
+		color:#FFF;
+		 font-size:15px;
+	}
   	#cityArea{
 		font-size:36px;	
 		color:#FFF;
@@ -206,6 +210,7 @@ function postWeatherForecast(){
       </td>
     	</tr>
      </table>
+     <div id="yahooFullNewsDisplayArea" style="visibility:hidden;margin-left:900px"></div>
 </body>
  
 <script type="text/javascript">
@@ -240,16 +245,25 @@ function setWeatherText(){
 		if (isNumber){
 			 var regExZip = /^\d{5}$/;
   	 		if (! regExZip.test(weather) ) {
+				 alert('Invalid zipcode: must be five digits\nExample : 90089');
  				 return false;
 		 	}
 		}
+		else{
+  			var isProperCity =  /[0-9a-zA-Z\s'-.,]+(\s*,\s*\w+)+$/.test(weather);
+			if(!isProperCity){
+				  alert('Invalid location: must include state or country separated by comma\nExample: Los Angeles, CA');
+				return false;	
+			}
+		}
 		return true;
 	 }
+	 
+	 
 	function callValidate(){
-		
-			if( !validateZip() ){
- 				 alert("Invalid zipcode: must be five digits\nExample : 90089 ");
-				 return false;
+
+		 if(!validateZip()){
+				return false; 
 			}
 		 
 		document.getElementById('hiddenTempType').value="f";
@@ -331,7 +345,8 @@ function validateForm(){
 				document.getElementById('tempUpDown').innerHTML='';
 				document.getElementById('temperatureArea').innerHTML='';
 				document.getElementById('facebookDetailsArea').style.visibility='hidden'
-				 		document.getElementById('forecastLabel').style.visibility='hidden';
+				 document.getElementById('forecastLabel').style.visibility='hidden';
+				 document.getElementById('yahooFullNewsDisplayArea').style.visibility='hidden';
 
 				document.getElementById('weatherDataArea').innerHTML='';
  			} else {
@@ -346,6 +361,10 @@ function validateForm(){
  		
 		document.getElementById('facebookDetailsArea').style.visibility='visible';
  		document.getElementById('forecastLabel').style.visibility='visible';
+ document.getElementById('yahooFullNewsDisplayArea').innerHTML="<p>View Full Details on </p> <a href='"+doc.weather.link+"' target='_blank'><img src='yahoo_news.gif'/></a>";
+		 		document.getElementById('yahooFullNewsDisplayArea').style.visibility='visible';
+
+
 
  	 YUI().use('datatable', function (Y) {
  	
