@@ -15,9 +15,15 @@ public class RadioButtonListener implements ItemListener{
 		mapComponent.drawPointLocationOnClick = false;
 		mapComponent.drawPointRegion = false;
 		mapComponent.drawWholeRegion = false;
+		mapComponent.drawRangeEverything = false;
+		mapComponent.pointsRegionList.clear();
+		mapComponent.surroundingASOnClickList.clear();
 		mapComponent.setPointX(-1);
 		mapComponent.setPointY(-1);
 		 
+		mapComponent.setSurrX(-1);
+		mapComponent.setSurrY(-1);
+
 		 if(imageDrawingApplet.wholeRegionRadioButton.isSelected()){
  			 	mapComponent.clearViaRadio();
 		 }else if(imageDrawingApplet.pointQueryRadioButton.isSelected()){

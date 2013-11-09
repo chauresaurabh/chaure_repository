@@ -160,13 +160,29 @@ public class populate {
 				data.clear();
 				String result[] = line.split(", ");
 				data=new ArrayList<String>(Arrays.asList(result)); 
-
+				int centerX, centerY , radius;
+				centerX = Integer.parseInt(data.get(1));
+				centerY = Integer.parseInt(data.get(2));
+				radius = Integer.parseInt( data.get(3) );
+				
+				int px1,py1, px2, py2, px3, py3;
+				px1 = centerX - radius;
+				py1 = centerY;
+				px2 = centerX;
+				py2 = centerY - radius;
+				px3 = centerX + radius;
+				py3 = centerY;
+				
  				sql =	"insert into sbc_announcement values(" +
 						"'"+ data.get(0)+"',"+
-						"SDO_GEOMETRY(2001,NULL,SDO_POINT_TYPE(" +
-						data.get(1)+","+
-						data.get(2)+",NULL),NULL,NULL),"+
-						data.get(3)+ ")" ;
+						" SDO_GEOMETRY( 2003, NULL, NULL," +
+						" SDO_ELEM_INFO_ARRAY(1,1003,4)," +
+						" SDO_ORDINATE_ARRAY("+px1 +"," + py1 + "," +px2 +"," + py2 + "," +px3 +"," + py3   +"  ) ),"+
+						data.get(3)+ "," +
+						data.get(1)	+	"," +
+						data.get(2)	+  ", SDO_GEOMETRY(2001,NULL,SDO_POINT_TYPE(" +
+                                data.get(1)+","+
+                                data.get(2)+",NULL),NULL,NULL)"+")" ;
 			 
 				statement = conn.prepareStatement(sql);
 				statement.execute();
