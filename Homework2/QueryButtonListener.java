@@ -93,7 +93,7 @@ public class QueryButtonListener implements ActionListener{
 				Connection conn  =  DBUtil.getConnection();
 				Statement stmt 	 = 	conn.createStatement();
 
-				String sql  =	"select b.shape.sdo_ordinates from sbc_buildings b  WHERE SDO_RELATE(b.shape," +
+				/*String sql  =	"select b.shape.sdo_ordinates from sbc_buildings b  WHERE SDO_RELATE(b.shape," +
 						" SDO_GEOMETRY(2003, NULL, NULL," +
 						" SDO_ELEM_INFO_ARRAY(1,1003,1)," +
 						" SDO_ORDINATE_ARRAY(" + mapComponent.pointsRegionList.get(0) ;
@@ -102,7 +102,20 @@ public class QueryButtonListener implements ActionListener{
 					sql = sql + ","+ mapComponent.pointsRegionList.get(i);
 				}
 				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " )), " +
-						"		 'MASK=OVERLAPBDYDISJOINT+OVERLAPBDYINTERSECT+EQUAL+INSIDE+COVEREDBY+CONTAINS+ON')='TRUE' " ;
+						"		 'MASK=OVERLAPBDYDISJOINT+OVERLAPBDYINTERSECT+EQUAL+INSIDE+COVEREDBY+CONTAINS+ON')='TRUE' " ;*/
+				
+				String sql  =	"select b.shape.sdo_ordinates from sbc_buildings b  WHERE" +
+						" SDO_ANYINTERACT(b.shape," +
+						" SDO_GEOMETRY(2003, NULL, NULL," +
+						" SDO_ELEM_INFO_ARRAY(1,1003,1)," +
+						" SDO_ORDINATE_ARRAY(" + mapComponent.pointsRegionList.get(0) ;
+
+				for (int i = 1; i < mapComponent.pointsRegionList.size(); i++) {
+					sql = sql + ","+ mapComponent.pointsRegionList.get(i);
+				}
+				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " )) " +
+						" )='TRUE' " ;
+				
 
 				OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 				while ( res.next() ) 
@@ -135,7 +148,7 @@ public class QueryButtonListener implements ActionListener{
 				Statement stmt 	 = 	conn.createStatement();
 
 				String sql  =	"select  b.shape.sdo_point from sbc_students b " +
-						" WHERE SDO_RELATE(b.shape," +
+						" WHERE SDO_ANYINTERACT(b.shape," +
 						" SDO_GEOMETRY(2003, NULL, NULL," +
 						" SDO_ELEM_INFO_ARRAY(1,1003,1)," +
 						" SDO_ORDINATE_ARRAY(" + mapComponent.pointsRegionList.get(0) ;
@@ -143,8 +156,8 @@ public class QueryButtonListener implements ActionListener{
 				for (int i = 1; i < mapComponent.pointsRegionList.size(); i++) {
 					sql = sql + ","+ mapComponent.pointsRegionList.get(i);
 				}
-				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " )), " +
-						"		 'MASK=OVERLAPBDYDISJOINT+OVERLAPBDYINTERSECT+EQUAL+INSIDE+COVEREDBY+CONTAINS+ON')='TRUE' " ;
+				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " ))  " +
+						"	 )='TRUE' " ;
 
 				OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 
@@ -176,15 +189,15 @@ public class QueryButtonListener implements ActionListener{
 				Connection conn  =  DBUtil.getConnection();
 
 				String sql  =	"select  b.announcement_radius, b.centerx, b.centery  from sbc_announcement b " +
-						" WHERE SDO_RELATE(b.shape," +
+						" WHERE SDO_ANYINTERACT(b.shape," +
 						" SDO_GEOMETRY(2003, NULL, NULL," +
 						" SDO_ELEM_INFO_ARRAY(1,1003,1)," +
 						" SDO_ORDINATE_ARRAY(" + mapComponent.pointsRegionList.get(0) ;
 				for (int i = 1; i < mapComponent.pointsRegionList.size(); i++) {
 					sql = sql + ","+ mapComponent.pointsRegionList.get(i);
 				}
-				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " )), " +
-						"		 'MASK=OVERLAPBDYDISJOINT+OVERLAPBDYINTERSECT+EQUAL+INSIDE+COVEREDBY+CONTAINS+ON')='TRUE' " ;
+				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " ))  " +
+						"	 )='TRUE' " ;
 
 				PreparedStatement ps 	 = 	conn.prepareStatement(sql);
 				OracleResultSet res  = 	 (OracleResultSet)ps.executeQuery();
@@ -233,9 +246,10 @@ public class QueryButtonListener implements ActionListener{
 							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null) , null, null)," +
 							"   'sdo_num_res=1',1) = 'TRUE'" +
-							" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
+							 " AND SDO_NN_DISTANCE(1) <= 50 ";
+					/*		" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
 							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
-							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;
+							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;*/
 					OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 					String building = "";
 					while ( res.next() ) 
@@ -292,9 +306,11 @@ public class QueryButtonListener implements ActionListener{
 							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null) , null, null)," +
 							"   'sdo_num_res=1',1) = 'TRUE'" +
+							" AND SDO_NN_DISTANCE(1) <= 50 ";
+					/*
 							" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
 							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
-							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;
+							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;*/
 					OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 
 					while ( res.next() ) 
@@ -350,9 +366,11 @@ public class QueryButtonListener implements ActionListener{
 							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null) , null, null)," +
 							"   'sdo_num_res=1',1) = 'TRUE'" +
-							" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
+							" AND SDO_NN_DISTANCE(1) <= 50 ";
+
+						/*	" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
 							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
-							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;
+							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;*/
 					OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 
 					while ( res.next() ) 
