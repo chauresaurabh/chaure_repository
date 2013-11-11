@@ -6,6 +6,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -32,8 +35,43 @@ public class MapComponent extends Component
 	ArrayList <Integer> rangeASCoordinates 	= 	null;
 
 	ArrayList <Integer> surroundingASOnClickList 	= 		new ArrayList <Integer>();
+	ArrayList <Integer> emergencyASOnClickList 	= 		new ArrayList <Integer>();
 
+	HashMap <String, EmergencyDrawObject > emergencyMap = new HashMap <String, EmergencyDrawObject > ();
 	
+	HashMap <String, Color > colorMap = new HashMap <String, Color > () {
+         {
+            put("a1psa",Color.RED);
+            put("a2ohe",Color.YELLOW);
+            put("a3sgm",Color.GREEN);
+            put("a4hnb",Color.WHITE);
+            put("a5vhe",Color.CYAN);
+            put("a6ssc",Color.MAGENTA);
+            put("a7helen",Color.BLUE);
+         }
+         ;
+    };
+	
+	String emergencySelectedAnnouncementName = "";
+	
+	
+
+	public String getEmergencySelectedAnnouncementName() {
+		return emergencySelectedAnnouncementName;
+	}
+
+	public void setEmergencySelectedAnnouncementName(
+			String emergencySelectedAnnouncementName) {
+		this.emergencySelectedAnnouncementName = emergencySelectedAnnouncementName;
+	}
+
+	public ArrayList<Integer> getEmergencyASOnClickList() {
+		return emergencyASOnClickList;
+	}
+
+	public void setEmergencyASOnClickList(ArrayList<Integer> emergencyASOnClickList) {
+		this.emergencyASOnClickList = emergencyASOnClickList;
+	}
 
 	public ArrayList<Integer> getSurrStudentCoordinatesList() {
 		return surrStudentCoordinatesList;
@@ -86,14 +124,51 @@ public class MapComponent extends Component
 	public boolean drawRangePointsPoligon = false;
 	public boolean drawRangeEverything = false;
 	public boolean drawSurrStudentsPointOnClick = false;
+	public boolean drawEmerStudentsPointOnClick = false;
 
 	public boolean drawSurrStudentsOnSubmit = false;
 
-	int pointX = -1, pointY = -1;
-	int surrX = -1, surrY = -1;
-
+	public boolean drawEmergencyEverything = false;
 
 	
+	int pointX = -1, pointY = -1;
+	int surrX = -1, surrY = -1;
+	int emerX = -1, emerY = -1;
+
+ 	
+	
+	public boolean isDrawEmergencyEverything() {
+		return drawEmergencyEverything;
+	}
+
+	public void setDrawEmergencyEverything(boolean drawEmergencyEverything) {
+		this.drawEmergencyEverything = drawEmergencyEverything;
+	}
+
+	public boolean isDrawEmerStudentsPointOnClick() {
+		return drawEmerStudentsPointOnClick;
+	}
+
+	public void setDrawEmerStudentsPointOnClick(boolean drawEmerStudentsPointOnClick) {
+		this.drawEmerStudentsPointOnClick = drawEmerStudentsPointOnClick;
+	}
+
+	public int getEmerX() {
+		return emerX;
+	}
+
+	public void setEmerX(int emerX) {
+		this.emerX = emerX;
+	}
+
+	public int getEmerY() {
+		return emerY;
+	}
+
+	public void setEmerY(int emerY) {
+		this.emerY = emerY;
+	}
+
 	public boolean isDrawSurrStudentsOnSubmit() {
 		return drawSurrStudentsOnSubmit;
 	}
@@ -310,8 +385,55 @@ public class MapComponent extends Component
 		if(drawSurrStudentsOnSubmit){
 			drawSurrStudentsOnSubmit(g);
 		}
+		
+		if(drawEmerStudentsPointOnClick){
+			drawEmerStudentsPointOnClick(g);
+		}
+		
+		if(drawEmergencyEverything)
+		{
+			drawEmergencyEverything(g);
+		}
+		
 	}
 
+	public void drawEmergencyEverything( Graphics map)
+	{
+		Iterator itr = emergencyMap.entrySet().iterator();
+		while(itr.hasNext()){
+	        Map.Entry entry = (Map.Entry)itr.next();		
+	        EmergencyDrawObject object = (EmergencyDrawObject) entry.getValue();
+	        map.setColor( object.getColor() );
+		
+	        map.fillRect(object.asX - 7 , object.asY - 7, 15, 15);
+	        map.drawOval( object.getAsX() - object.getAsRadius(),  object.getAsY() - object.getAsRadius() ,
+	        		 object.getAsRadius() * 2,  object.getAsRadius() * 2 );
+	        
+	        ArrayList < Integer > studentsList = object.getStudentCordinate();
+			for (int i = 0; i < studentsList.size(); i+=2) {
+				map.fillRect(studentsList.get(i)-5, studentsList.get(i+1)-5, 10, 10);
+			}
+ 			
+		}
+		drawEmergencyEverything = false;
+		emergencyMap.clear();
+		
+		
+	}
+	
+	public void drawEmerStudentsPointOnClick( Graphics map){
+
+		map.setColor(Color.RED);
+		map.drawLine(emerX, emerY, emerX, emerY);
+		int i =0;
+		if(emergencyASOnClickList!=null && emergencyASOnClickList.size()>0) {
+			map.fillRect(emergencyASOnClickList.get(i)-7 , emergencyASOnClickList.get(i+1)-7, 15, 15);
+			map.drawOval(emergencyASOnClickList.get(i)-emergencyASOnClickList.get(i+2), emergencyASOnClickList.get(i+1)-emergencyASOnClickList.get(i+2),
+					emergencyASOnClickList.get(i+2)*2, emergencyASOnClickList.get(i+2)*2 );
+			//surroundingASOnClickList.clear();
+		}
+		drawEmerStudentsPointOnClick = false;
+	}
 	public void drawSurrStudentsOnSubmit( Graphics map ){
 		
 		if(surrStudentCoordinatesList!=null && surrStudentCoordinatesList.size()>0 ){

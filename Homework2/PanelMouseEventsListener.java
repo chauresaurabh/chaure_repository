@@ -49,6 +49,15 @@ public class PanelMouseEventsListener implements MouseInputListener{
 			drawSurrQueryAnnouncementSystem();
 		}
  		
+		if( imageDrawingApplet.emergencyQueryRadioButton.isSelected() &&  mouse.getButton() == 1  ){
+			int x = mouse.getX();
+			int y = mouse.getY();
+			mapComponent.setEmerX(x);
+			mapComponent.setEmerY(y);
+			
+			mapComponent.setDrawEmerStudentsPointOnClick(true);
+			drawEmergencyQueryAnnouncementSystem();
+		}
 		
 		if( imageDrawingApplet.rangeQueryRadioButton.isSelected() ){
 
@@ -122,6 +131,47 @@ public class PanelMouseEventsListener implements MouseInputListener{
 
 	}
 	
+
+public void drawEmergencyQueryAnnouncementSystem(){
+		
+		ArrayList <Integer> announcementCoordinates = new ArrayList< Integer >();
+
+		try 
+		{
+			Connection conn  =  DBUtil.getConnection();
+			Statement stmt 	 = 	conn.createStatement();
+ 
+			String sql 	 =	"select  b.centerx, b.centery , b.announcement_radius , b.announcement_name from sbc_announcement b " +
+					"	WHERE SDO_NN( b.shape , " +
+ 					" SDO_GEOMETRY(2001, NULL," +
+					" SDO_POINT_TYPE("+mapComponent.getEmerX()+"," +
+					mapComponent.getEmerY()+" ,null) , null, null)," +
+					"   'sdo_num_res=1',1) = 'TRUE'" ;
+			
+			OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
+
+			while ( res.next() ) 
+			{
+ 				int x = res.getInt(1);
+				int y = res.getInt(2);
+				int radius = res.getInt(3);
+				String announcement_name = res.getString(4);
+				
+				announcementCoordinates.add(x);
+				announcementCoordinates.add(y);
+				announcementCoordinates.add(radius);
+				
+				mapComponent.setEmergencySelectedAnnouncementName(announcement_name);
+ 
+ 			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		
+  		mapComponent.setEmergencyASOnClickList(announcementCoordinates);
+		mapComponent.repaint();
+
+	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {

@@ -18,6 +18,10 @@ public class RadioButtonListener implements ItemListener{
 		mapComponent.drawRangeEverything = false;
 		mapComponent.pointsRegionList.clear();
 		mapComponent.surroundingASOnClickList.clear();
+		mapComponent.emergencyASOnClickList.clear();
+		mapComponent.emergencyMap.clear();
+		
+		
 		mapComponent.setPointX(-1);
 		mapComponent.setPointY(-1);
 		 

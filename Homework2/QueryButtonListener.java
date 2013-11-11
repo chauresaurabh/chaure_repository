@@ -1,8 +1,11 @@
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
+
 import oracle.jdbc.driver.OracleResultSet;
 import oracle.sql.ARRAY;
 import oracle.sql.STRUCT;
@@ -37,11 +40,106 @@ public class QueryButtonListener implements ActionListener{
 				drawRangeRegion();
 			}else if(imageDrawingApplet.surroundingStudentRadioButton.isSelected()){ 
 				drawSurroundingRegion();
+			}else if(imageDrawingApplet.emergencyQueryRadioButton.isSelected()){ 
+				drawEmergencyRegion();
 			}
 		}
 
 	}
+	public void drawEmergencyRegion(){
+		
+		boolean drawFlag = false;
+		
+		ArrayList <Integer> studentCoordinates = new ArrayList< Integer >();
+		// need to check here.
+		try {
+			String sql 	 =	"  select b.shape.sdo_point from sbc_students b WHERE" +
+					" SDO_WITHIN_DISTANCE(b.shape," +
+					"		 SDO_GEOMETRY(2001, NULL, SDO_POINT_TYPE("+mapComponent.emergencyASOnClickList.get(0)+"," +
+					mapComponent.emergencyASOnClickList.get(1)+" ,null), null, null), " +
+					" 'distance =  "+ mapComponent.emergencyASOnClickList.get(2) +"') = 'TRUE' " ;
+			Connection conn  =  DBUtil.getConnection();
 
+			PreparedStatement ps 	 = 	conn.prepareStatement(sql);
+			OracleResultSet	res 		= 	 (OracleResultSet)ps.executeQuery();
+			while ( res.next() ) 
+			{
+				STRUCT struct 			= 	(STRUCT) res.getObject(1);
+				Object[] data 			= 	struct.getAttributes();
+
+				int x 				= 	((Number) data[0]).intValue();
+				int y 				= 	((Number) data[1]).intValue();
+				studentCoordinates.add(x);
+				studentCoordinates.add(y);
+			}	
+
+		} catch(Exception e ){
+			e.printStackTrace();
+		}
+		Connection conn  =  DBUtil.getConnection();
+
+		for (int i = 0; i < studentCoordinates.size() ; i+=2 ) {
+			try{
+				int pointX = studentCoordinates.get(i);
+				int pointY = studentCoordinates.get(i+1);
+
+				String sql = "SELECT b.announcement_name , b.centerx , b.centery , b.announcement_radius " +
+						" FROM sbc_announcement b" +
+						" WHERE   b.announcement_name!= ? " +
+						" AND SDO_NN( b.shape , SDO_GEOMETRY(2001, NULL, " +
+						" SDO_POINT_TYPE("+pointX +","+ pointY + ",NULL) , NULL, NULL), " +
+						" 'sdo_num_res=2',1) = 'TRUE' ";
+
+				PreparedStatement ps 	 = 	conn.prepareStatement(sql);
+				ps.setString(1, mapComponent.getEmergencySelectedAnnouncementName() );
+				OracleResultSet res 		= 	  (OracleResultSet)ps.executeQuery();
+				while ( res.next() ) 
+				{
+					String announcement_name = res.getString(1);
+					int centerX = res.getInt(2);
+					int centerY = res.getInt(3);
+					int radius = res.getInt(4);
+
+					if( mapComponent.emergencyMap.get(announcement_name) == null )
+					{
+						EmergencyDrawObject object = new EmergencyDrawObject();
+						object.setAsRadius(radius);
+						object.setAsX(centerX);
+						object.setAsY(centerY);
+
+						ArrayList < Integer > studentCordinates = new ArrayList<Integer>();
+						studentCordinates.add(pointX);
+						studentCordinates.add(pointY);
+
+						object.setStudentCordinate(studentCordinates);
+						object.setColor(mapComponent.colorMap.get(announcement_name));	// THIS SHOULD BE FROM RANDOM LIST
+
+						mapComponent.emergencyMap.put( announcement_name, object );
+
+					} else {
+						EmergencyDrawObject object =  mapComponent.emergencyMap.get(announcement_name);
+						ArrayList < Integer > studentCordinates = object.getStudentCordinate();
+						studentCordinates.add(pointX);
+						studentCordinates.add(pointY);
+						object.setStudentCordinate(studentCordinates);
+						mapComponent.emergencyMap.put( announcement_name, object );
+
+					}
+
+				}
+				drawFlag = true;
+				
+			}catch(Exception e){
+				e.printStackTrace();
+			}
+		}
+		
+			if(drawFlag){
+				mapComponent.setDrawEmergencyEverything(true);
+				mapComponent.repaint();
+				
+			}
+	}
 	public void drawSurroundingRegion(){
 		ArrayList <Integer> studentCoordinates = new ArrayList< Integer >();
 		boolean drawFlag = false;
@@ -103,7 +201,7 @@ public class QueryButtonListener implements ActionListener{
 				}
 				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " )), " +
 						"		 'MASK=OVERLAPBDYDISJOINT+OVERLAPBDYINTERSECT+EQUAL+INSIDE+COVEREDBY+CONTAINS+ON')='TRUE' " ;*/
-				
+
 				String sql  =	"select b.shape.sdo_ordinates from sbc_buildings b  WHERE" +
 						" SDO_ANYINTERACT(b.shape," +
 						" SDO_GEOMETRY(2003, NULL, NULL," +
@@ -115,7 +213,7 @@ public class QueryButtonListener implements ActionListener{
 				}
 				sql = sql + ","+ mapComponent.pointsRegionList.get(0)+ ","+ mapComponent.pointsRegionList.get(1)+ " )) " +
 						" )='TRUE' " ;
-				
+
 
 				OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 				while ( res.next() ) 
@@ -246,7 +344,7 @@ public class QueryButtonListener implements ActionListener{
 							" SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null) , null, null)," +
 							"   'sdo_num_res=1',1) = 'TRUE'" +
-							 " AND SDO_NN_DISTANCE(1) <= 50 ";
+							" AND SDO_NN_DISTANCE(1) <= 50 ";
 					/*		" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
 							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;*/
@@ -368,7 +466,7 @@ public class QueryButtonListener implements ActionListener{
 							"   'sdo_num_res=1',1) = 'TRUE'" +
 							" AND SDO_NN_DISTANCE(1) <= 50 ";
 
-						/*	" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
+					/*	" AND SDO_WITHIN_DISTANCE(b.shape, SDO_GEOMETRY(2001, NULL," +
 							"  SDO_POINT_TYPE("+mapComponent.getPointX()+"," +
 							mapComponent.getPointY()+" ,null) , null, null),  'distance=50') = 'TRUE' " ;*/
 					OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
