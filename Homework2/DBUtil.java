@@ -8,7 +8,8 @@ public class DBUtil {
   	public static Connection getConnection(){
 
 		Connection conn = null ;
- 		String url = "jdbc:oracle:thin:system/manager@localhost:1521:orclchaure";
+ 		String url = "jdbc:oracle:thin:system/hw2@localhost:1521:hw2";
+ 	 
 		try 
 		{
 			conn = DriverManager.getConnection(url);

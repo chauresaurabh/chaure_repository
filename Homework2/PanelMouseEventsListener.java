@@ -29,7 +29,10 @@ public class PanelMouseEventsListener implements MouseInputListener{
 
 	@Override
 	public void mouseReleased(MouseEvent mouse) {
-
+		
+		if(mouse.getX() > 820 || mouse.getY()>520 )
+		{	
+		}else{
 		if( imageDrawingApplet.pointQueryRadioButton.isSelected() &&  mouse.getButton() == 1  ){
 			int x = mouse.getX();
 			int y = mouse.getY();
@@ -71,7 +74,7 @@ public class PanelMouseEventsListener implements MouseInputListener{
  			}
 			if( mouse.getButton() == 3 ){
 				//System.out.println( rangeQueryList );
-				System.out.println(rangeQueryList);
+				//System.out.println(rangeQueryList);
 				if( rangeQueryList.size() >= 6 ){ // need to check this condition
 					mapComponent.setPointsRegionList( rangeQueryList);
 					mapComponent.setDrawRangePointsPoligon(true);
@@ -83,7 +86,7 @@ public class PanelMouseEventsListener implements MouseInputListener{
 			}
  			
 		}
-
+		}
 	}
 
 
@@ -91,7 +94,7 @@ public class PanelMouseEventsListener implements MouseInputListener{
 	public void mouseMoved(MouseEvent mouse) {
 		int x = mouse.getX();
 		int y = mouse.getY();
-		imageDrawingApplet.mouseLocation.setText(x+" -- "+y); 
+		imageDrawingApplet.mouseLocation.setText("( X, Y ) = ( "+ x+", "+y +")"); 
 	}
 
 	public void drawSurrQueryAnnouncementSystem(){
@@ -112,6 +115,12 @@ public class PanelMouseEventsListener implements MouseInputListener{
 			
 			OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 
+			String displayString = sql+"\n\n";
+			String text= imageDrawingApplet.queryDisplayArea.getText();
+			QueryButtonListener.counter++;
+
+			imageDrawingApplet.queryDisplayArea.setText(text + "\n" + (QueryButtonListener.counter) +" : \n "+displayString + "\n");
+		
 			while ( res.next() ) 
 			{
  				int x = res.getInt(1);
@@ -135,18 +144,21 @@ public class PanelMouseEventsListener implements MouseInputListener{
 public void drawEmergencyQueryAnnouncementSystem(){
 		
 		ArrayList <Integer> announcementCoordinates = new ArrayList< Integer >();
-
+		
+		String sql = "";
 		try 
 		{
 			Connection conn  =  DBUtil.getConnection();
 			Statement stmt 	 = 	conn.createStatement();
  
-			String sql 	 =	"select  b.centerx, b.centery , b.announcement_radius , b.announcement_name from sbc_announcement b " +
+			  sql 	 =	"select  b.centerx, b.centery , b.announcement_radius , b.announcement_name from sbc_announcement b " +
 					"	WHERE SDO_NN( b.shape , " +
  					" SDO_GEOMETRY(2001, NULL," +
 					" SDO_POINT_TYPE("+mapComponent.getEmerX()+"," +
 					mapComponent.getEmerY()+" ,null) , null, null)," +
 					"   'sdo_num_res=1',1) = 'TRUE'" ;
+			
+		
 			
 			OracleResultSet res 		= 	 (OracleResultSet)stmt.executeQuery(sql);
 
@@ -167,6 +179,13 @@ public void drawEmergencyQueryAnnouncementSystem(){
 		}catch(Exception e){
 			e.printStackTrace();
 		}
+		
+		String displayString = sql+"\n\n";
+		String text= imageDrawingApplet.queryDisplayArea.getText();
+		QueryButtonListener.counter++;
+
+		imageDrawingApplet.queryDisplayArea.setText(text + "\n" + (QueryButtonListener.counter) +" : \n "+displayString + "\n");
+ 	
 		
   		mapComponent.setEmergencyASOnClickList(announcementCoordinates);
 		mapComponent.repaint();

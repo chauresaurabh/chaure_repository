@@ -63,21 +63,24 @@ public class ImageDrawingApplet extends JApplet
 	public void createScrollPane(){
 		scrollPane = 	new JScrollPane(queryDisplayArea);
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		scrollPane.setPreferredSize(new Dimension(800,40));
+		scrollPane.setPreferredSize(new Dimension(800,60));
 		add("South",scrollPane);
 	}
 	public void createControlPanel(){
 		controlPanel 	= 	new JPanel();
 		controlPanel.setLayout(new GridLayout(0, 1)); 
-
+		
+		controlPanel.add(featureTypeLabel);
 		controlPanel.add(asCheckBox);
 		controlPanel.add(buildingCheckBox);
 		controlPanel.add(studentCheckBox);
 		controlPanel.add(mouseLocation);
 
+		controlPanel.add(queryLabel);
+
 		controlPanel.add(wholeRegionRadioButton);
-		controlPanel.add(rangeQueryRadioButton);
 		controlPanel.add(pointQueryRadioButton);
+		controlPanel.add(rangeQueryRadioButton);
 		controlPanel.add(surroundingStudentRadioButton);
 		controlPanel.add(emergencyQueryRadioButton);
 		controlPanel.add(submitQueryButton);
@@ -87,6 +90,8 @@ public class ImageDrawingApplet extends JApplet
 	}
 	public void createButtons(){
 		submitQueryButton  =  new JButton("Submit Query"); 
+		submitQueryButton.setFont( new Font("Times New Roman",Font.BOLD, 12 ) );
+
 
 	}
 	public void createRadioButtons(){
@@ -120,7 +125,10 @@ public class ImageDrawingApplet extends JApplet
 
 	public void createLabels(){
 		queryLabel 		= 	new JLabel("Query", JLabel.LEFT);
+		queryLabel.setFont( new Font("Times New Roman",Font.BOLD, 18 ) );
 		featureTypeLabel 		= 	new JLabel("Active Feature Type", JLabel.LEFT);
+		featureTypeLabel.setFont( new Font("Times New Roman",Font.BOLD, 18 ) );
+
 	}
 }
 

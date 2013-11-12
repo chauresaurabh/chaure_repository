@@ -11,10 +11,17 @@ import java.util.Arrays;
 public class populate {
 
 	public static void main(String[] args) {
- 
-		String buildingFileLocation = "F:/buildings.xy";
-		String studentFileLocation = "F:/students.xy";
-		String asSystemFileLocation = "F:/announcementSystems.xy";
+		
+		if( args.length !=3)
+		{
+			System.out.println("Please enter 3 parameters");
+			System.exit(1);
+			
+		}
+		System.out.println( "Using Files : "+ args[0] + ", " + args[1] +", " + args[2]);
+		String buildingFileLocation = ""+args[0];
+		String studentFileLocation = ""+args[1];
+		String asSystemFileLocation = ""+args[2];
 
 		try 
 		{

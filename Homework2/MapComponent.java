@@ -14,7 +14,7 @@ import javax.imageio.ImageIO;
 
 public class MapComponent extends Component 
 {
-	File mapFile = new File("F:/map.jpg");	// this will be some dynamic path
+	File mapFile = new File("map.jpg");	// this will be some dynamic path
 	BufferedImage mapImage = null;
 
 	ArrayList <Integer> asCoordinates 	= 	null;
