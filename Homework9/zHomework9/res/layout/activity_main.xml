@@ -1,0 +1,97 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/blue"
+    tools:context=".MainActivity" >
+
+    <EditText
+        android:id="@+id/locationText"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dip"
+        android:background="@drawable/textbox"
+        android:inputType="text"
+        android:padding="5dip" />
+
+    <RadioGroup
+        android:id="@+id/radiogroup"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dip"
+        android:layout_toRightOf="@+id/locationText"
+        android:orientation="horizontal" >
+
+        <RadioButton
+            android:id="@+id/radio_fareinheit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="°F"
+            android:textColor="@android:color/white" />
+
+        <RadioButton
+            android:id="@+id/radio_celcius"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="°C"
+            android:textColor="@android:color/white" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btn_do_it"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="260dip"
+        android:layout_marginTop="8dip"
+        android:layout_toRightOf="@id/radiogroup"
+        android:text="Search" />
+
+    <TextView
+        android:id="@+id/city_result"
+        android:layout_width="400dip"
+        android:layout_height="20dip"
+        android:layout_marginLeft="130dip"
+        android:layout_marginTop="50dip"
+        android:text=""
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/region_country"
+        android:layout_width="400dip"
+        android:layout_height="20dip"
+        android:layout_marginLeft="130dip"
+        android:layout_marginTop="80dip"
+        android:text=""
+        android:textColor="#FFFFFF" />
+
+    <ImageView
+        android:id="@+id/imageview"
+        android:layout_width="200dip"
+        android:layout_height="20dip"
+        android:layout_marginLeft="80dip"
+        android:layout_marginTop="110dip"
+        android:scaleType="center" />
+
+    <TextView
+        android:id="@+id/condition"
+        android:layout_width="wrap_content"
+        android:layout_height="20dip"
+        android:layout_marginLeft="150dip"
+        android:layout_marginTop="150dip"
+        android:text=""
+        android:textColor="#FFFFFF" />
+
+    <TextView
+        android:id="@+id/temperature"
+        android:layout_width="wrap_content"
+        android:layout_height="20dip"
+        android:layout_marginLeft="150dip"
+        android:layout_marginTop="180dip"
+        android:text=""
+        android:textColor="#FFFFFF" />
+
+    <include layout="@layout/table_layout" />
+
+</RelativeLayout>
