@@ -16,6 +16,10 @@ import org.json.JSONObject;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.view.Menu;
 import android.graphics.Bitmap;
@@ -29,6 +33,7 @@ import android.widget.RadioButton;
 import android.widget.TableLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.facebook.*;
 import com.facebook.model.*;
 import com.facebook.widget.WebDialog;
@@ -50,8 +55,8 @@ public class MainActivity extends Activity {
 	private TextView postCurrent;
 	private TextView postForeCast;
 	private TextView forecastlabel;
-
-	
+	private TextView error_result;
+	Dialog dialog;
 	private TableLayout tableLayout;
 
 	private ImageView imageView;
@@ -65,9 +70,10 @@ public class MainActivity extends Activity {
 	String conditionText = "";
 	JSONArray forecastArray = null;
 	String errorString = "";
-	
+	String displayLink = "";
+
 	String feed = "";
-	
+
 	String cityStateCountry = "";
 	String currentCaption = "";
 
@@ -88,6 +94,7 @@ public class MainActivity extends Activity {
 		condition = (TextView) findViewById(R.id.condition);
 		temperature = (TextView) findViewById(R.id.temperature);
 		forecastlabel = (TextView) findViewById(R.id.forecastlabel);
+		error_result = (TextView) findViewById(R.id.error_result);
 
 		radioButton = (RadioButton) findViewById(R.id.radio_fareinheit);
 
@@ -95,7 +102,7 @@ public class MainActivity extends Activity {
 
 		postCurrent = (TextView) findViewById(R.id.postCurrent);
 		postForeCast = (TextView) findViewById(R.id.postForecast);
-		
+
 		List <Integer> row1 = Arrays.asList(R.id.row1_1, R.id.row1_2 ,R.id.row1_3 ,  R.id.row1_4 );
 		List <Integer> row2 = Arrays.asList(R.id.row2_1, R.id.row2_2 ,R.id.row2_3 ,  R.id.row2_4 );
 		List <Integer> row3 = Arrays.asList(R.id.row3_1, R.id.row3_2 ,R.id.row3_3 ,  R.id.row3_4 );
@@ -122,7 +129,7 @@ public class MainActivity extends Activity {
 					tempType = "c";
 				}
 				AsyncTaskRunner runner = new AsyncTaskRunner();
-				runner.execute(text,"Zip", tempType );
+				runner.execute(text,"City", tempType );
 			}
 		}); 
 
@@ -131,41 +138,140 @@ public class MainActivity extends Activity {
 
 			@Override
 			public void onClick(View v) {
- 
-				Session.openActiveSession( MainActivity.this, true, new Session.StatusCallback() {
 
-					// callback when session changes state
+				dialog = new Dialog(MainActivity.this);
+				dialog.setContentView(R.layout.dialog_current);
+				dialog.setTitle("Post to Facebook");
+				dialog.show();
+
+				Button postCurrent = (Button)dialog.findViewById(R.id.postCurrent);    
+				postCurrent.setOnClickListener(new View.OnClickListener() {
 					@Override
-					public void call(Session session, SessionState state, Exception exception) {
- 						if (state.isOpened() || session.isOpened()) {
-							publishFeedDialog(0);        
-						}
-  					}
-				}); 
- 
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						Session.openActiveSession( MainActivity.this, true, new Session.StatusCallback() {
+							// callback when session changes state
+							@Override
+							public void call(Session session, SessionState state, Exception exception) {
+								if (state.isOpened() || session.isOpened()) {
+									publishFeedDialog(0);        
+								}
+							}
+						}); 
+
+					}
+				});
+
+				Button button = (Button)dialog.findViewById(R.id.postCurrentCancel);    
+				button.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						dialog.dismiss();
+					}
+				});
+
 			}
 		});
 
+		/**
+		 * 
+		 */
+
+		TextView text2=(TextView) findViewById(R.id.postForecast);
+		text2.setOnClickListener(new View.OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				dialog = new Dialog(MainActivity.this);
+				dialog.setContentView(R.layout.dialog_forecast);
+				dialog.setTitle("Post to Facebook");
+				dialog.show();
+
+				Button postForecast = (Button)dialog.findViewById(R.id.postForecast);    
+				postForecast.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						Session.openActiveSession( MainActivity.this, true, new Session.StatusCallback() {
+							// callback when session changes state
+							@Override
+							public void call(Session session, SessionState state, Exception exception) {
+								if (state.isOpened() || session.isOpened()) {
+									publishFeedDialog(1);        
+								}
+							}
+						}); 
+
+					}
+				});
+
+				Button button = (Button)dialog.findViewById(R.id.postForecastCancel);    
+				button.setOnClickListener(new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						// TODO Auto-generated method stub
+						dialog.dismiss();
+					}
+				});
+
+			}
+		});
+
+
+
 	}
 
-	  @Override
-	    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-	        super.onActivityResult(requestCode, resultCode, data);
-	        Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
- 	    }
-	  
- 	private void publishFeedDialog(int current) {
- 		// this method will be flag based 
- 		
- 		String currentCaption = "The current condition for " + city + " is \n" + conditionText;
- 		String temperatureText = "Temperature is " + temperature.getText() +"\n" + "Look at details <a href="+"'http://www.google.com'"+""+"> here </a>";
- 		Bundle params = new Bundle();
-		params.putString("name", cityStateCountry);
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		Session.getActiveSession().onActivityResult(this, requestCode, resultCode, data);
+	}
+
+	private void publishFeedDialog(int current) {
+		// this method will be flag based 
+		String currentCaption = "";
+		String temperatureText = "";
+		if(current == 0){
+			  currentCaption = "The current condition for " + city + " is \n" + conditionText;
+			  temperatureText = "Temperature is " + temperature.getText() ;
+		}else if (current == 1){
+			  currentCaption = "Weather Forecast for "+city;
+				for (int i = 0; i < forecastArray.length(); i++) {
+					
+						try {
+							JSONObject object = (JSONObject) forecastArray.get(i);
+							temperatureText+=object.getString("day")+":"+object.getString("text")+","+object.getString("high")+"/"+object.getString("low")
+									+"°"+tempType.toUpperCase()+";";
+						} catch (JSONException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					
+				}
+ 		}
+		Bundle params = new Bundle();
+		params.putString("name", city+" ,"+region + " ," + country);
 		params.putString("caption", currentCaption);
 		params.putString("description",  temperatureText);
 		params.putString("link", feed );
 		params.putString("picture", img);
- 
+
+
+		JSONObject property = new JSONObject();
+		try {
+			property.put("text", " here");
+			property.put("href", displayLink);
+			JSONObject properties = new JSONObject();
+			properties.put("Look at details", property);
+			params.putString("properties", properties.toString());
+
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		WebDialog feedDialog = (
 				new WebDialog.FeedDialogBuilder(MainActivity.this,
 						Session.getActiveSession(),
@@ -175,6 +281,8 @@ public class MainActivity extends Activity {
 							//  @Override
 							public void onComplete(Bundle values,
 									FacebookException error) {
+								dialog.dismiss();
+
 								if (error == null) {
 									// When the story is posted, echo the success
 									// and the post Id.
@@ -243,29 +351,30 @@ public class MainActivity extends Activity {
 				region_country.setText(region + " ," + country);
 				temperature.setText(conditionTemp);
 				condition.setText(conditionText);
-	 			
+				error_result.setText("");
+
 				tableLayout.setVisibility(0);
 				forecastlabel.setVisibility(0);
 				postCurrent.setVisibility(0);
-				
+				imageView.setVisibility(0);
 				postForeCast.setVisibility(0);
-				
+
 			}else{
-				//city_result.set(400); need to set error msg somewhere else
-				city_result.setText(errorString);
+				error_result.setText(errorString);
+				city_result.setText("");
 				cityStateCountry = "";
-				
- 				imageView.setImageBitmap(bmp);
-				region_country.setText(region + " ," + country);
-				temperature.setText(conditionTemp);
-				condition.setText(conditionText);
-	 			tableLayout.setVisibility(4);
+
+				imageView.setVisibility(4);
+				region_country.setText("");
+				temperature.setText("");
+				condition.setText("");
+				tableLayout.setVisibility(4);
 				forecastlabel.setVisibility(4);
 				postCurrent.setVisibility(4);
-				
+
 				postForeCast.setVisibility(4);
 			}
-		
+
 			for (int i = 0; i < forecastArray.length(); i++) {
 				try {
 					JSONObject object = (JSONObject) forecastArray.get(i);
@@ -311,7 +420,7 @@ public class MainActivity extends Activity {
 	public String getWeatherInfo(String zipcode, String locationType, String temperatureType) throws Exception{
 
 		errorString = null;
-		
+
 		zipcode = URLEncoder.encode(zipcode, "UTF-8");
 
 		String aUrl = "http://cs-server.usc.edu:19836/examples/GetWeather?weather="+zipcode+"&locationType="+locationType+"" +
@@ -334,18 +443,21 @@ public class MainActivity extends Activity {
 
 		JSONObject weatherJSON = jsonObj.getJSONObject("weather");
 		if(str.toString().contains("error")){
-			 errorString = weatherJSON.getString("error");
-			 region = "";
-			 city = "";
-			 country = "";
-			 conditionTemp = "";
-			 conditionText = "";
-			 feed = "";
-			 forecastArray = new JSONArray();
+			errorString = weatherJSON.getString("error");
+			region = "";
+			city = "";
+			country = "";
+			conditionTemp = "";
+			conditionText = "";
+			feed = "";
+			forecastArray = new JSONArray();
+
+			return "";
 		}
+		// there could be exception here need to check.
 		JSONObject locationJSON = weatherJSON.getJSONObject("location");
 		JSONObject conditionJSON = weatherJSON.getJSONObject("condition");
- 		region = locationJSON.getString("region");
+		region = locationJSON.getString("region");
 		city = locationJSON.getString("city");
 		country = locationJSON.getString("country");
 		conditionTemp = conditionJSON.getString("temp") + "°" +temperatureType.toUpperCase();
@@ -354,8 +466,9 @@ public class MainActivity extends Activity {
 		value="";
 		value = value+jsonObj.getString("weather");
 
-		String img = weatherJSON.getString("img");
-		
+		img = weatherJSON.getString("img");
+		displayLink = weatherJSON.getString("link");
+
 		feed = weatherJSON.getString("feed");
 		URL url2 = new URL( img );
 		bmp = BitmapFactory.decodeStream(url2.openConnection().getInputStream());
@@ -366,15 +479,4 @@ public class MainActivity extends Activity {
 		return value;
 	}
 
-	public void postForecast(View view){
-		System.out.println("Clicked postForecast");
-
-		Toast.makeText(this, "Clicked On Forecast", Toast.LENGTH_SHORT).show();
-
-	}
-	public void postCurrentWeather(View view){
-		System.out.println("Clicked current");
-		Toast.makeText(this, "Clicked On postCurrentWeather", Toast.LENGTH_SHORT).show();
-
-	} 
 }

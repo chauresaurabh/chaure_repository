@@ -59,6 +59,16 @@
         android:textSize="50px" />
 
     <TextView
+        android:id="@+id/error_result"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dip"
+        android:layout_marginTop="50dip"
+        android:text=""
+        android:textColor="#FFFFFF"
+        android:textSize="50px" />
+    
+    <TextView
         android:id="@+id/region_country"
         android:layout_width="400dip"
         android:layout_height="20dip"
@@ -70,9 +80,9 @@
     <ImageView
         android:id="@+id/imageview"
         android:layout_width="200dip"
-        android:layout_height="20dip"
+        android:layout_height="50dip"
         android:layout_marginLeft="90dip"
-        android:layout_marginTop="110dip"
+        android:layout_marginTop="100dip"
         android:scaleType="center" />
 
     <TextView
@@ -80,7 +90,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dip"
         android:layout_marginLeft="160dip"
-        android:layout_marginTop="130dip"
+        android:layout_marginTop="150dip"
         android:text=""
         android:textColor="#FFFFFF" />
 
@@ -89,7 +99,7 @@
         android:layout_width="wrap_content"
         android:layout_height="20dip"
         android:layout_marginLeft="180dip"
-        android:layout_marginTop="150dip"
+        android:layout_marginTop="170dip"
         android:text=""
         android:textColor="#FFFFFF" />
 

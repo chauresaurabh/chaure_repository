@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="5dip">
+ 
+       <Button
+        android:id="@+id/postForecast"
+        android:layout_width="fill_parent"
+        android:layout_height="40dip"
+         android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
+        android:text="Post Weather Forecast"
+        android:textSize="25sp"
+        android:background="#D0D0D0" />
+          
+    <Button
+        android:id="@+id/postForecastCancel"
+        android:layout_width="fill_parent"
+        android:layout_height="40dip"
+        android:layout_below="@+id/postForecast"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="17dp"
+        android:text="Cancel"
+        android:textSize="25sp"
+        android:background="#D0D0D0" />
+
+</RelativeLayout>
